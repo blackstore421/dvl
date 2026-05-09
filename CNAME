@@ -12,6 +12,7 @@
             color: #ffffff;
             font-family: 'Inter', sans-serif;
             overflow-x: hidden;
+            scroll-behavior: smooth;
         }
 
         .glow-bg {
@@ -19,9 +20,9 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 600px;
-            height: 600px;
-            background: radial-gradient(circle, rgba(139, 92, 246, 0.08) 0%, rgba(0,0,0,0) 70%);
+            width: 800px;
+            height: 800px;
+            background: radial-gradient(circle, rgba(139, 92, 246, 0.05) 0%, rgba(0,0,0,0) 70%);
             pointer-events: none;
             z-index: -1;
         }
@@ -46,13 +47,20 @@
         .card-gradient {
             background: linear-gradient(145deg, rgba(20, 20, 20, 0.6) 0%, rgba(10, 10, 10, 0.8) 100%);
             border: 1px solid rgba(255, 255, 255, 0.05);
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
         }
 
         .card-gradient:hover {
-            border-color: rgba(255, 255, 255, 0.15);
-            transform: translateY(-4px);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+        }
+
+        .card-active {
+            border-color: #ffffff !important;
+            background: rgba(255, 255, 255, 0.05);
+            box-shadow: 0 0 30px rgba(255, 255, 255, 0.1);
         }
 
         .popular-badge {
@@ -86,82 +94,238 @@
             align-items: center;
             justify-content: center;
         }
+
+        .modal-overlay {
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(10px);
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 50;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .paypal-btn {
+            background: #FFC439;
+            color: #003087;
+            transition: opacity 0.2s;
+        }
+        
+        .paypal-btn:hover {
+            opacity: 0.9;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .animate-fade {
+            animation: fadeIn 0.5s ease forwards;
+        }
     </style>
 </head>
-<body class="flex flex-col items-center justify-center min-h-screen px-4 py-20">
+<body class="flex flex-col items-center justify-center min-h-screen px-4">
     <div class="glow-bg"></div>
 
-    <!-- Header Section -->
-    <header class="text-center mb-16">
-        <h1 class="hero-title font-extrabold">dvl</h1>
-        <p class="server-text font-light">S E R V E R</p>
-        <p class="max-w-md mx-auto mt-8 text-gray-400 text-sm leading-relaxed">
-            Automated extraction and decryption system. Exclusive access. Fully private environment for advanced data management.
-        </p>
-        
-        <button class="mt-12 bg-white text-black font-bold py-3 px-10 rounded text-xs tracking-widest uppercase btn-glow">
-            Login with Discord
-        </button>
-    </header>
-
-    <!-- Pricing Section -->
-    <section class="w-full max-w-5xl">
-        <div class="text-center mb-12">
-            <h2 class="text-3xl font-bold mb-2">Simple Pricing</h2>
-            <p class="text-gray-500 text-sm">Pick a plan. Pay with Crypto. Start dumping.</p>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+    <!-- Main View -->
+    <div id="main-view" class="flex flex-col items-center py-20 w-full">
+        <!-- Header Section -->
+        <header class="text-center mb-16 animate-fade">
+            <h1 class="hero-title font-extrabold">dvl</h1>
+            <p class="server-text font-light">S E R V E R</p>
+            <p class="max-w-md mx-auto mt-8 text-gray-400 text-sm leading-relaxed">
+                Automated extraction and decryption system. Exclusive access. Fully private environment for advanced data management.
+            </p>
             
-            <!-- 1 Day -->
-            <div class="card-gradient rounded-xl p-8 flex flex-col items-center text-center">
-                <div class="icon-box mb-6">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-400"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                </div>
-                <h3 class="text-xs font-bold tracking-widest text-gray-300 uppercase mb-2">1 Day</h3>
-                <div class="text-4xl font-bold mb-1">$5</div>
-                <div class="text-[10px] text-gray-500 font-bold uppercase tracking-tighter">24 Hours</div>
+            <button onclick="handleDiscordLogin()" class="mt-12 bg-white text-black font-bold py-4 px-12 rounded text-xs tracking-widest uppercase btn-glow flex items-center gap-3 mx-auto">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.196.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.419-2.157 2.419zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.419-2.157 2.419z"/></svg>
+                Login with Discord
+            </button>
+        </header>
+
+        <!-- Pricing Section -->
+        <section class="w-full max-w-5xl animate-fade" style="animation-delay: 0.1s">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold mb-2">Simple Pricing</h2>
+                <p class="text-gray-500 text-sm">Pick a plan to begin the upgrade process.</p>
             </div>
 
-            <!-- 1 Week -->
-            <div class="card-gradient rounded-xl p-8 flex flex-col items-center text-center">
-                <div class="icon-box mb-6">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-400"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <!-- 1 Day -->
+                <div onclick="selectPlan(this, '1 Day', 5)" class="card-gradient rounded-xl p-8 flex flex-col items-center text-center">
+                    <div class="icon-box mb-6">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-400"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    </div>
+                    <h3 class="text-xs font-bold tracking-widest text-gray-300 uppercase mb-2">1 Day</h3>
+                    <div class="text-4xl font-bold mb-1">$5</div>
+                    <div class="text-[10px] text-gray-500 font-bold uppercase tracking-tighter">24 Hours</div>
                 </div>
-                <h3 class="text-xs font-bold tracking-widest text-gray-300 uppercase mb-2">1 Week</h3>
-                <div class="text-4xl font-bold mb-1">$20</div>
-                <div class="text-[10px] text-gray-500 font-bold uppercase tracking-tighter">7 Days</div>
+
+                <!-- 1 Week -->
+                <div onclick="selectPlan(this, '1 Week', 20)" class="card-gradient rounded-xl p-8 flex flex-col items-center text-center">
+                    <div class="icon-box mb-6">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-400"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                    </div>
+                    <h3 class="text-xs font-bold tracking-widest text-gray-300 uppercase mb-2">1 Week</h3>
+                    <div class="text-4xl font-bold mb-1">$20</div>
+                    <div class="text-[10px] text-gray-500 font-bold uppercase tracking-tighter">7 Days</div>
+                </div>
+
+                <!-- 1 Month (Popular) -->
+                <div onclick="selectPlan(this, '1 Month', 40)" class="card-gradient rounded-xl p-8 flex flex-col items-center text-center relative border-white/20">
+                    <div class="absolute -top-3 left-1/2 -translate-x-1/2">
+                        <span class="popular-badge">MOST POPULAR</span>
+                    </div>
+                    <div class="icon-box mb-6 border-white/20">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-white"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+                    </div>
+                    <h3 class="text-xs font-bold tracking-widest text-white uppercase mb-2">1 Month</h3>
+                    <div class="text-4xl font-bold mb-1 text-white">$40</div>
+                    <div class="text-[10px] text-gray-400 font-bold uppercase tracking-tighter">30 Days</div>
+                </div>
+
+                <!-- Lifetime -->
+                <div onclick="selectPlan(this, 'Lifetime', 150)" class="card-gradient rounded-xl p-8 flex flex-col items-center text-center">
+                    <div class="icon-box mb-6">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-400"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                    </div>
+                    <h3 class="text-xs font-bold tracking-widest text-gray-300 uppercase mb-2">Lifetime</h3>
+                    <div class="text-4xl font-bold mb-1">$150</div>
+                    <div class="text-[10px] text-gray-500 font-bold uppercase tracking-tighter">Forever</div>
+                </div>
+            </div>
+        </section>
+
+        <footer class="mt-24 text-gray-600 text-[10px] tracking-[0.2em] uppercase animate-fade">
+            &copy; 2026 DVL Systems. developed by Skull.
+        </footer>
+    </div>
+
+    <!-- Checkout Modal -->
+    <div id="checkout-modal" class="modal-overlay">
+        <div class="bg-[#0a0a0a] border border-white/10 p-10 rounded-2xl max-w-md w-full mx-4 shadow-2xl">
+            <div class="flex justify-between items-center mb-8">
+                <h2 class="text-xl font-bold">Secure Checkout</h2>
+                <button onclick="closeCheckout()" class="text-gray-500 hover:text-white">
+                    <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
             </div>
 
-            <!-- 1 Month (Popular) -->
-            <div class="card-gradient rounded-xl p-8 flex flex-col items-center text-center relative border-white/20">
-                <div class="absolute -top-3 left-1/2 -translate-x-1/2">
-                    <span class="popular-badge">MOST POPULAR</span>
+            <div class="space-y-6">
+                <!-- User Profile Summary (After Login) -->
+                <div id="user-profile" class="flex items-center gap-4 p-4 bg-white/5 rounded-lg border border-white/5">
+                    <div class="w-12 h-12 bg-indigo-600 rounded-full flex items-center justify-center font-bold text-lg">S</div>
+                    <div>
+                        <p class="text-sm font-semibold" id="username-display">Skull#0001</p>
+                        <p class="text-[10px] text-gray-500 uppercase tracking-wider">Discord Authenticated</p>
+                    </div>
                 </div>
-                <div class="icon-box mb-6 border-white/20">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-white"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
-                </div>
-                <h3 class="text-xs font-bold tracking-widest text-white uppercase mb-2">1 Month</h3>
-                <div class="text-4xl font-bold mb-1 text-white">$40</div>
-                <div class="text-[10px] text-gray-400 font-bold uppercase tracking-tighter">30 Days</div>
-            </div>
 
-            <!-- Lifetime -->
-            <div class="card-gradient rounded-xl p-8 flex flex-col items-center text-center">
-                <div class="icon-box mb-6">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-400"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                <!-- Plan Summary -->
+                <div class="p-6 bg-white/5 rounded-lg">
+                    <p class="text-xs text-gray-500 uppercase tracking-widest mb-1">Selected Plan</p>
+                    <div class="flex justify-between items-end">
+                        <h3 class="text-2xl font-bold" id="checkout-plan-name">1 Month</h3>
+                        <p class="text-2xl font-light" id="checkout-plan-price">$40.00</p>
+                    </div>
                 </div>
-                <h3 class="text-xs font-bold tracking-widest text-gray-300 uppercase mb-2">Lifetime</h3>
-                <div class="text-4xl font-bold mb-1">$150</div>
-                <div class="text-[10px] text-gray-500 font-bold uppercase tracking-tighter">Forever</div>
-            </div>
 
+                <div class="space-y-3">
+                    <button onclick="processPayment('PayPal')" class="paypal-btn w-full py-4 rounded-lg font-bold flex items-center justify-center gap-2">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M20.067 8.478c.492.2.827.467 1.004.8 0 0 .001.001.001.001.148.278.17.618.064 1.012l-.001.003-.01.042c-.29 1.157-1.077 2.215-2.217 2.977-1.12.748-2.52 1.145-3.941 1.118l-.513-.01H12.72l-.76 4.417a.64.64 0 0 1-.634.531H8.887a.321.321 0 0 1-.318-.376l2.128-12.355a.641.641 0 0 1 .634-.531h3.948c1.396 0 2.583.13 3.535.518l.1.041c.42.17.803.38 1.153.645zM15.426 6.321h-3.948a.64.64 0 0 0-.634.531l-.226 1.314h4.174c.954 0 1.764.211 2.37.585.344.213.62.476.822.784.053.081.102.164.148.25.267.498.243 1.121-.07 1.849-.29 1.157-1.077 2.215-2.217 2.977-1.12.748-2.52 1.145-3.941 1.118l-.513-.01H9.873l-.68 3.948H8.887a.321.321 0 0 1-.318-.376l2.128-12.355a.641.641 0 0 1 .634-.531h3.948c.15 0 .296.002.438.006.27-.13.568-.246.892-.345.541-.165 1.144-.241 1.802-.241a5.617 5.617 0 0 1 .632.036c-.952-.388-2.14-.518-3.535-.518h.04z"/></svg>
+                        Pay with PayPal
+                    </button>
+                    <p class="text-[10px] text-center text-gray-500 uppercase tracking-widest">Instant Activation After Payment</p>
+                </div>
+            </div>
         </div>
-    </section>
+    </div>
 
-    <!-- Footer -->
-    <footer class="mt-24 text-gray-600 text-[10px] tracking-[0.2em] uppercase">
-        &copy; 2024 DVL Systems. All rights reserved.
-    </footer>
+    <!-- Feedback Message Box -->
+    <div id="msg-box" class="fixed bottom-10 left-1/2 -translate-x-1/2 bg-white text-black px-6 py-3 rounded-full font-bold text-xs uppercase tracking-widest shadow-xl transform translate-y-20 transition-transform duration-300 z-50">
+        Item added to cart
+    </div>
+
+    <script>
+        let selectedPlanData = {
+            name: '',
+            price: 0
+        };
+
+        let isLoggedIn = false;
+
+        function showMessage(text) {
+            const box = document.getElementById('msg-box');
+            box.innerText = text;
+            box.style.transform = 'translate-Y(0) translateX(-50%)';
+            box.style.bottom = '40px';
+            setTimeout(() => {
+                box.style.transform = 'translate-Y(20px) translateX(-50%)';
+                box.style.bottom = '-100px';
+            }, 3000);
+        }
+
+        function handleDiscordLogin() {
+            // Simulation of Discord Auth
+            showMessage("Redirecting to Discord...");
+            setTimeout(() => {
+                isLoggedIn = true;
+                showMessage("Logged in as Skull#0001");
+                document.querySelector('button[onclick="handleDiscordLogin()"]').innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <div class="w-6 h-6 bg-indigo-500 rounded-full"></div>
+                        <span>Welcome, Skull#0001</span>
+                    </div>
+                `;
+            }, 1000);
+        }
+
+        function selectPlan(element, name, price) {
+            // Update visual selection
+            document.querySelectorAll('.card-gradient').forEach(card => {
+                card.classList.remove('card-active');
+            });
+            element.classList.add('card-active');
+
+            // Store data
+            selectedPlanData = { name, price };
+
+            if (!isLoggedIn) {
+                showMessage("Please login with Discord first");
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                return;
+            }
+
+            openCheckout();
+        }
+
+        function openCheckout() {
+            document.getElementById('checkout-plan-name').innerText = selectedPlanData.name;
+            document.getElementById('checkout-plan-price').innerText = `$${selectedPlanData.price}.00`;
+            document.getElementById('checkout-modal').style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeCheckout() {
+            document.getElementById('checkout-modal').style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        function processPayment(method) {
+            showMessage(`Connecting to ${method}...`);
+            setTimeout(() => {
+                showMessage("Redirecting to secure payment page...");
+                // Here you would redirect to your PayPal business link or gateway
+                // window.location.href = `https://paypal.me/yourbusiness/${selectedPlanData.price}`;
+            }, 1500);
+        }
+
+        // Close modal on escape key
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeCheckout();
+        });
+    </script>
 </body>
 </html>
